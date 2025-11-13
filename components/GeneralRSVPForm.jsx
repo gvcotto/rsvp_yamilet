@@ -1,4 +1,63 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const FORM_COPY = {
+  es: {
+    contactNameLabel: "Nombre del contacto *",
+    contactNamePlaceholder: "Ej. Claudia Natareno",
+    contactPhoneLabel: "Teléfono *",
+    contactPhonePlaceholder: "Ej. 4013653519",
+    adultsTitle: "Adultos que asistirán *",
+    addAdult: "+ Agregar adulto",
+    adultPlaceholder: "Nombre del adulto {index}",
+    removeAdult: "Eliminar adulto {index}",
+    adultSummary: "Adultos agregados: {count}. Puedes incluir a todos los acompañantes mayores de edad.",
+    childrenTitle: "Niños que asistirán",
+    addChild: "+ Agregar niño",
+    childPlaceholder: "Nombre del niño {index}",
+    removeChild: "Eliminar niño {index}",
+    noChildrenHelp: "Si asistirán niños, agrega sus nombres para tenerlos presentes.",
+    childSummary: "Niños agregados: {count}. Si ya no asistirán, elimina sus nombres.",
+    noteLabel: "Comentarios adicionales (opcional)",
+    notePlaceholder: "Ej. Somos alérgicos a los frutos secos.",
+    contactNameError: "Por favor ingresa el nombre del contacto principal.",
+    contactPhoneError: "Necesitamos un número de contacto para confirmar.",
+    adultListError: "Agrega al menos un adulto en la lista de invitados.",
+    submitError: "No pudimos registrar tu asistencia.",
+    genericError: "Ocurrió un error al enviar tu confirmación.",
+    success: "¡Gracias! Hemos recibido tu confirmación.",
+    submit: "Confirmar asistencia",
+    submitting: "Enviando...",
+  },
+  en: {
+    contactNameLabel: "Primary contact name *",
+    contactNamePlaceholder: "e.g. Claudia Natareno",
+    contactPhoneLabel: "Phone number *",
+    contactPhonePlaceholder: "e.g. 4013653519",
+    adultsTitle: "Adults attending *",
+    addAdult: "+ Add adult",
+    adultPlaceholder: "Adult {index} full name",
+    removeAdult: "Remove adult {index}",
+    adultSummary: "Adults added: {count}. Include every adult guest in your group.",
+    childrenTitle: "Children attending",
+    addChild: "+ Add child",
+    childPlaceholder: "Child {index} full name",
+    removeChild: "Remove child {index}",
+    noChildrenHelp: "If kids will attend, add their names so we can plan for them.",
+    childSummary: "Children added: {count}. Remove their names if they can no longer attend.",
+    noteLabel: "Additional comments (optional)",
+    notePlaceholder: "e.g. We are allergic to nuts.",
+    contactNameError: "Please enter the main contact's name.",
+    contactPhoneError: "We need a contact number to confirm.",
+    adultListError: "Add at least one adult to your guest list.",
+    submitError: "We couldn't record your RSVP.",
+    genericError: "Something went wrong while sending your RSVP.",
+    success: "Thank you! We have received your RSVP.",
+    submit: "Confirm attendance",
+    submitting: "Sending...",
+  },
+};
 
 export default function GeneralRSVPForm() {
   const [contactName, setContactName] = useState("");
@@ -9,6 +68,13 @@ export default function GeneralRSVPForm() {
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { language } = useLanguage();
+  const text = FORM_COPY[language] || FORM_COPY.es;
+
+  useEffect(() => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  }, [language]);
 
   const totalAdults = useMemo(
     () => adults.map((adult) => adult.name.trim()).filter(Boolean).length,
@@ -59,15 +125,15 @@ export default function GeneralRSVPForm() {
 
     const cleanAdults = adults.map((adult) => adult.name.trim()).filter(Boolean);
     if (!contactName.trim()) {
-      setErrorMessage("Por favor ingresa el nombre del contacto principal.");
+      setErrorMessage(text.contactNameError);
       return;
     }
     if (!contactPhone.trim()) {
-      setErrorMessage("Necesitamos un número de contacto para confirmar.");
+      setErrorMessage(text.contactPhoneError);
       return;
     }
     if (!cleanAdults.length) {
-      setErrorMessage("Agrega al menos un adulto en la lista de invitados.");
+      setErrorMessage(text.adultListError);
       return;
     }
 
@@ -101,16 +167,16 @@ export default function GeneralRSVPForm() {
       });
       const result = await response.json();
       if (!response.ok || result?.ok === false) {
-        throw new Error(result?.error || "No pudimos registrar tu asistencia.");
+        throw new Error(result?.error || text.submitError);
       }
-      setSuccessMessage("¡Gracias! Hemos recibido tu confirmación.");
+      setSuccessMessage(text.success);
       setContactName("");
       setContactPhone("");
       setAdults([{ name: "" }]);
       setChildren([]);
       setNote("");
     } catch (err) {
-      setErrorMessage(err.message || "Ocurrió un error al enviar tu confirmación.");
+      setErrorMessage(err.message || text.genericError);
     } finally {
       setSubmitting(false);
     }
@@ -120,18 +186,18 @@ export default function GeneralRSVPForm() {
     <form className="rsvp-form" onSubmit={handleSubmit}>
       <div className="rsvp-form__grid">
         <label className="rsvp-form__field">
-          <span>Nombre del contacto *</span>
+          <span>{text.contactNameLabel}</span>
           <input
             type="text"
             className="input"
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
-            placeholder="Ej. Claudia Natareno"
+            placeholder={text.contactNamePlaceholder}
             required
           />
         </label>
         <label className="rsvp-form__field">
-          <span>Teléfono *</span>
+          <span>{text.contactPhoneLabel}</span>
           <input
             type="tel"
             className="input"
@@ -139,7 +205,7 @@ export default function GeneralRSVPForm() {
             onChange={handlePhoneChange}
             inputMode="numeric"
             pattern="[0-9]+"
-            placeholder="Ej. 4013653519"
+            placeholder={text.contactPhonePlaceholder}
             required
           />
         </label>
@@ -147,14 +213,14 @@ export default function GeneralRSVPForm() {
 
       <div className="rsvp-form__group">
         <div className="rsvp-form__group-head">
-          <p className="rsvp-form__group-title">Adultos que asistirán *</p>
+          <p className="rsvp-form__group-title">{text.adultsTitle}</p>
           <button
             type="button"
             className="rsvp-form__small-btn"
             onClick={addAdult}
             disabled={adults.length >= 10}
           >
-            + Agregar adulto
+            {text.addAdult}
           </button>
         </div>
         <div className="rsvp-form__adults">
@@ -165,14 +231,14 @@ export default function GeneralRSVPForm() {
                 className="input"
                 value={adult.name}
                 onChange={(e) => updateAdult(index, e.target.value)}
-                placeholder={`Nombre del adulto ${index + 1}`}
+                placeholder={text.adultPlaceholder.replace("{index}", String(index + 1))}
               />
               {adults.length > 1 && (
                 <button
                   type="button"
                   className="rsvp-form__remove"
                   onClick={() => removeAdult(index)}
-                  aria-label={`Eliminar adulto ${index + 1}`}
+                  aria-label={text.removeAdult.replace("{index}", String(index + 1))}
                 >
                   ×
                 </button>
@@ -181,26 +247,25 @@ export default function GeneralRSVPForm() {
           ))}
         </div>
         <p className="rsvp-form__help">
-          Adultos agregados: {totalAdults || 0}. Puedes incluir a todos los acompañantes
-          mayores de edad.
+          {text.adultSummary.replace("{count}", String(totalAdults || 0))}
         </p>
       </div>
 
       <div className="rsvp-form__group">
         <div className="rsvp-form__group-head">
-          <p className="rsvp-form__group-title">Niños que asistirán</p>
+          <p className="rsvp-form__group-title">{text.childrenTitle}</p>
           <button
             type="button"
             className="rsvp-form__small-btn"
             onClick={addChild}
             disabled={children.length >= 10}
           >
-            + Agregar niño
+            {text.addChild}
           </button>
         </div>
         {children.length === 0 ? (
           <p className="rsvp-form__help">
-            Si asistirán niños, agrega sus nombres para tenerlos presentes.
+            {text.noChildrenHelp}
           </p>
         ) : (
           <>
@@ -212,13 +277,13 @@ export default function GeneralRSVPForm() {
                     className="input"
                     value={child.name}
                     onChange={(e) => updateChild(index, e.target.value)}
-                    placeholder={`Nombre del niño ${index + 1}`}
+                    placeholder={text.childPlaceholder.replace("{index}", String(index + 1))}
                   />
                   <button
                     type="button"
                     className="rsvp-form__remove"
                     onClick={() => removeChild(index)}
-                    aria-label={`Eliminar niño ${index + 1}`}
+                    aria-label={text.removeChild.replace("{index}", String(index + 1))}
                   >
                     ×
                   </button>
@@ -226,20 +291,20 @@ export default function GeneralRSVPForm() {
               ))}
             </div>
             <p className="rsvp-form__help">
-              Niños agregados: {totalChildren || 0}. Si ya no asistirán, elimina sus nombres.
+              {text.childSummary.replace("{count}", String(totalChildren || 0))}
             </p>
           </>
         )}
       </div>
 
       <label className="rsvp-form__field">
-        <span>Comentarios adicionales (opcional)</span>
+        <span>{text.noteLabel}</span>
         <textarea
           className="textarea"
           rows={3}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Ej. Somos alérgicos a los frutos secos."
+          placeholder={text.notePlaceholder}
         />
       </label>
 
@@ -255,7 +320,7 @@ export default function GeneralRSVPForm() {
       )}
 
       <button type="submit" className="btn-gold rsvp-form__submit" disabled={submitting}>
-        {submitting ? "Enviando..." : "Confirmar asistencia"}
+        {submitting ? text.submitting : text.submit}
       </button>
     </form>
   );

@@ -1,5 +1,8 @@
-﻿import { useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const INTRO_VIDEO_SRC = "/video/castle_intro.mp4";
 const AUDIO_SRC = "/music/music.mp3";
@@ -7,6 +10,22 @@ const SOUND_ON_ICON = "🔊";
 const SOUND_OFF_ICON = "🔈";
 const INTRO_HEART_EMOJI = "💞";
 const INTRO_HAND_EMOJI = "👇";
+const INTRO_COPY = {
+  es: {
+    ariaLabel: "Entrar a la invitación",
+    CTA: "Toca o haz clic para iniciar",
+    muteMusic: "Silenciar música",
+    playMusic: "Reproducir música",
+    restartVideo: "Reproducir video de bienvenida otra vez",
+  },
+  en: {
+    ariaLabel: "Enter the invitation",
+    CTA: "Tap or click to begin",
+    muteMusic: "Mute music",
+    playMusic: "Play music",
+    restartVideo: "Replay welcome video",
+  },
+};
 
 export default function IntroVideo() {
   const router = useRouter();
@@ -16,6 +35,8 @@ export default function IntroVideo() {
   const [audioReady, setAudioReady] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const unlockHandlersRef = useRef({ pointer: null, key: null });
+  const { language } = useLanguage();
+  const copy = INTRO_COPY[language] || INTRO_COPY.es;
 
   const ensureAudio = () => {
     if (typeof window === "undefined") return null;
@@ -73,14 +94,6 @@ export default function IntroVideo() {
     };
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const handleEnded = () => triggerTransition();
-    video.addEventListener("ended", handleEnded);
-    return () => video.removeEventListener("ended", handleEnded);
-  }, []);
-
   const startExperience = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -91,14 +104,22 @@ export default function IntroVideo() {
       .catch(() => {});
   };
 
-  const triggerTransition = () => {
+  const triggerTransition = useCallback(() => {
     if (transitioning) return;
     setTransitioning(true);
     ensureAudio()?.play().catch(() => {});
     setTimeout(() => {
       router.replace("/detalles");
     }, 600);
-  };
+  }, [router, transitioning]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const handleEnded = () => triggerTransition();
+    video.addEventListener("ended", handleEnded);
+    return () => video.removeEventListener("ended", handleEnded);
+  }, [triggerTransition]);
 
   const handleInteraction = () => {
     if (!started) {
@@ -136,8 +157,9 @@ export default function IntroVideo() {
       onClick={handleInteraction}
       role="button"
       tabIndex={-1}
-      aria-label="Entrar a la invitaciÃ³n"
+      aria-label={copy.ariaLabel}
     >
+      <LanguageSwitch className="floating-language-switch" appearance="light" />
       <video
         ref={videoRef}
         className="intro-video__player"
@@ -153,7 +175,7 @@ export default function IntroVideo() {
             <span className="intro-video__emoji" aria-hidden="true" style={{ color: "#d8aeb0" }}>
               {INTRO_HEART_EMOJI}
             </span>
-            <p>Toca o haz clic para iniciar</p>
+            <p>{copy.CTA}</p>
             <span className="intro-video__hand" aria-hidden="true" style={{ color: "#d8aeb0" }}>
               {INTRO_HAND_EMOJI}
             </span>
@@ -166,7 +188,7 @@ export default function IntroVideo() {
         onClick={toggleAudio}
         disabled={!audioReady}
         aria-pressed={isAudioPlaying}
-        aria-label={isAudioPlaying ? "Silenciar mÃºsica" : "Reproducir mÃºsica"}
+        aria-label={isAudioPlaying ? copy.muteMusic : copy.playMusic}
       >
         <span aria-hidden="true">{isAudioPlaying ? SOUND_ON_ICON : SOUND_OFF_ICON}</span>
       </button>
@@ -174,7 +196,7 @@ export default function IntroVideo() {
         type="button"
         className="sound-toggle sound-toggle--secondary"
         onClick={restartIntro}
-        aria-label="Reproducir video de bienvenida otra vez"
+        aria-label={copy.restartVideo}
       >
         ↺
       </button>

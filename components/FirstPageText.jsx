@@ -2,13 +2,34 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const COVER_COPY = {
+  es: {
+    openAria: "Abrir invitación",
+    invitationLabel: "Tu invitación",
+    guestFallback: "Invitado/a",
+    reservedPrefix: "Hemos reservado",
+    reservedSuffix: "lugar(es) en tu honor",
+    seatsLabel: "Lugares reservados: {count}",
+  },
+  en: {
+    openAria: "Open invitation",
+    invitationLabel: "Your invitation",
+    guestFallback: "Guest",
+    reservedPrefix: "We have reserved",
+    reservedSuffix: "seat(s) in your honor",
+    seatsLabel: "Reserved seats: {count}",
+  },
+};
+
 export default function FirstPageText() {
   const router = useRouter();
   const { n, p, s } = router.query;
-
-  const [displayName, setDisplayName] = useState(
-    n ? decodeURIComponent(n) : ""
-  );
+  const { language } = useLanguage();
+  const copy = COVER_COPY[language] || COVER_COPY.es;
+  const [displayName, setDisplayName] = useState(n ? decodeURIComponent(n) : "");
   const [seats, setSeats] = useState(Number(s || 1));
   const [leaving, setLeaving] = useState(false);
   const [opening, setOpening] = useState(false);
@@ -33,7 +54,7 @@ export default function FirstPageText() {
 
           const sheetName = json.party.displayName?.trim();
           const urlName = n ? decodeURIComponent(n).trim() : null;
-          setDisplayName(urlName || sheetName || "Invitado/a");
+          setDisplayName(urlName || sheetName || "");
         }
       } catch (err) {
         console.error("No se pudo cargar la invitación", err);
@@ -53,17 +74,14 @@ export default function FirstPageText() {
     }
   }, []);
 
-  const seatsFragment = useMemo(
-    () => (
-      <span
-        className="seat-num seat-num-only"
-        aria-label={`Lugares reservados: ${seats}`}
-      >
+  const seatsFragment = useMemo(() => {
+    const label = (copy.seatsLabel || "").replace("{count}", String(seats));
+    return (
+      <span className="seat-num seat-num-only" aria-label={label}>
         {seats}
       </span>
-    ),
-    [seats]
-  );
+    );
+  }, [copy.seatsLabel, seats]);
 
   const handleOpen = () => {
     if (opening) return;
@@ -95,12 +113,13 @@ export default function FirstPageText() {
 
   return (
     <main className="cover-wrap cover-white">
+      <LanguageSwitch className="floating-language-switch" appearance="dark" />
       <section className="cover-centerpiece">
         <button
           type="button"
           className={`centerpiece-button ${opening ? "opening" : ""}`}
           onClick={handleOpen}
-          aria-label="Abrir invitación"
+          aria-label={copy.openAria}
         >
           <Image
             src="/canva/centerpiece.png"
@@ -115,18 +134,18 @@ export default function FirstPageText() {
       </section>
 
       <div className="cover-guest">
-        <span className="h-font gold-gradient cover-label">Tu invitación</span>
+        <span className="h-font gold-gradient cover-label">{copy.invitationLabel}</span>
         <span className="h-font gold-gradient guest-name-normal">
-          {displayName?.trim() || "Invitado/a"}
+          {displayName?.trim() || copy.guestFallback}
         </span>
       </div>
 
       <section className="cover-reserve">
         <div className="reserve-card-canvas gold-frame">
           <div className="reserve-inner">
-            <span className="h-font gold-gradient">Hemos reservado</span>
+            <span className="h-font gold-gradient">{copy.reservedPrefix}</span>
             {seatsFragment}
-            <span className="h-font gold-gradient">lugar(es) en tu honor</span>
+            <span className="h-font gold-gradient">{copy.reservedSuffix}</span>
           </div>
         </div>
       </section>

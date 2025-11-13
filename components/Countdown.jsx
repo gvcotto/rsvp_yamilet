@@ -1,4 +1,10 @@
 ﻿import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const COUNTDOWN_LABELS = {
+  es: { days: "Días", hours: "Horas", minutes: "Min", seconds: "Seg" },
+  en: { days: "Days", hours: "Hours", minutes: "Min", seconds: "Sec" },
+};
 
 export default function Countdown({ targetISO }) {
   const [timeLeft, setTimeLeft] = useState({
@@ -28,12 +34,15 @@ export default function Countdown({ targetISO }) {
     return () => clearInterval(id);
   }, [targetISO]);
 
+  const { language } = useLanguage();
+  const labels = COUNTDOWN_LABELS[language] || COUNTDOWN_LABELS.es;
+
   return (
     <div className="countdown-wrap">
-      <Item value={timeLeft.days} label="Días" />
-      <Item value={timeLeft.hours} label="Horas" />
-      <Item value={timeLeft.minutes} label="Min" />
-      <Item value={timeLeft.seconds} label="Seg" />
+      <Item value={timeLeft.days} label={labels.days} />
+      <Item value={timeLeft.hours} label={labels.hours} />
+      <Item value={timeLeft.minutes} label={labels.minutes} />
+      <Item value={timeLeft.seconds} label={labels.seconds} />
     </div>
   );
 }
