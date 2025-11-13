@@ -25,7 +25,7 @@ const RECEPTION_CARD = {
   link: MAP_LINK,
 };
 
-const SLIDESHOW_PHOTOS = Array.from({ length: 10 }, (_, index) => `/photos/foto${index + 1}.jpg`);
+const SLIDESHOW_PHOTOS = Array.from({ length: 13 }, (_, index) => `/photos/foto${index + 1}.jpg`);
 
 export default function DetallesPage() {
   const [isAudioReady, setIsAudioReady] = useState(false);
