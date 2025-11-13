@@ -18,7 +18,7 @@ const RECEPTION_CARD = {
   icon: "/icons/ceremonia.png",
   title: "Recepción",
   time: "Horario: 5:00 pm a 11:00 pm",
-  location: "Night Of Columbus Rev. Jordan J. Dillon • 1675 Douglas Ave. • North Providence, RI 02904",
+  location: "Knights of Columbus Rev. Jordan J. Dillon Council #3563 • 1675 Douglas Ave. • North Providence, RI 02904",
   link: MAP_LINK,
 };
 
@@ -75,7 +75,7 @@ export default function DetallesPage() {
 
       <section className="section">
         <div className="relative overflow-hidden rounded-3xl bg-black/40 shadow-soft">
-          <div className="relative h-[68vh] min-h-[520px] w-full">
+          <div className="relative h-[68vh] min-h-[420px] sm:min-h-[520px] w-full">
             <Image
               src="/photos/hero1.jpg"
               alt="Yamilet Alfaro"
@@ -91,7 +91,7 @@ export default function DetallesPage() {
                 Yamilet Alfaro
               </h1>
               <p className="hero-date mt-4 max-w-xl text-base md:text-lg">
-                20 de diciembre de 2025 • Night Of Columbus • North Providence, RI
+                20 de diciembre de 2025 • Knights of Columbus Rev. Jordan J. Dillon Council #3563 • North Providence, RI
               </p>
             </div>
 
