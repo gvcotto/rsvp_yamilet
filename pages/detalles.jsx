@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 import CalendarBadge from "@/components/CalendarBadge";
 import Countdown from "@/components/Countdown";
@@ -12,6 +13,8 @@ const CONTACT_LABEL = "401 • 365 • 3519";
 const MAP_LINK = "https://maps.app.goo.gl/Em2ApGxVxtU7qwGG6";
 const CALENDAR_URL =
   "https://calendar.google.com/calendar/render?action=TEMPLATE&text=XV%20Yamilet%20Alfaro&dates=20251220T220000Z/20251221T040000Z&details=Quincea%C3%B1era%20de%20Yamilet%20Alfaro&location=Night%20Of%20Columbus%201675%20Douglas%20Ave%20North%20Providence%20RI%2002904&sf=true&output=xml";
+const SOUND_ON_ICON = "\uD83D\uDD0A";
+const SOUND_OFF_ICON = "\uD83D\uDD08";
 
 const RECEPTION_CARD = {
   id: "recepcion",
@@ -27,6 +30,7 @@ const SLIDESHOW_PHOTOS = Array.from({ length: 10 }, (_, index) => `/photos/foto$
 export default function DetallesPage() {
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -61,6 +65,10 @@ export default function DetallesPage() {
     }
   };
 
+  const restartIntro = () => {
+    router.push("/");
+  };
+
   return (
     <main className="invite-wrap text-ink">
       <button
@@ -70,7 +78,15 @@ export default function DetallesPage() {
         disabled={!isAudioReady}
         aria-label={isAudioPlaying ? "Silenciar música" : "Reproducir música"}
       >
-        <span aria-hidden="true">{isAudioPlaying ? "🔊" : "🔈"}</span>
+        <span aria-hidden="true">{isAudioPlaying ? SOUND_ON_ICON : SOUND_OFF_ICON}</span>
+      </button>
+      <button
+        type="button"
+        className="sound-toggle sound-toggle--secondary"
+        onClick={restartIntro}
+        aria-label="Reproducir video de bienvenida otra vez"
+      >
+        ↺
       </button>
 
       <section className="section">

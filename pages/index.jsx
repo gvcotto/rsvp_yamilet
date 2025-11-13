@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
 const INTRO_VIDEO_SRC = "/video/castle_intro.mp4";
 const AUDIO_SRC = "/music/music.mp3";
+const SOUND_ON_ICON = "🔊";
+const SOUND_OFF_ICON = "🔈";
+const INTRO_HEART_EMOJI = "💞";
+const INTRO_HAND_EMOJI = "👇";
 
 export default function IntroVideo() {
   const router = useRouter();
@@ -115,13 +119,24 @@ export default function IntroVideo() {
     }
   };
 
+  const restartIntro = (event) => {
+    event.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    setTransitioning(false);
+    setStarted(false);
+    video.currentTime = 0;
+    ensureAudio()?.play().catch(() => {});
+    video.play().catch(() => {});
+  };
+
   return (
     <div
       className={`intro-video${transitioning ? " intro-video--fade" : ""}`}
       onClick={handleInteraction}
       role="button"
       tabIndex={-1}
-      aria-label="Entrar a la invitación"
+      aria-label="Entrar a la invitaciÃ³n"
     >
       <video
         ref={videoRef}
@@ -136,11 +151,11 @@ export default function IntroVideo() {
         {!started && (
           <div className="intro-video__cta">
             <span className="intro-video__emoji" aria-hidden="true" style={{ color: "#d8aeb0" }}>
-              🤍
+              {INTRO_HEART_EMOJI}
             </span>
             <p>Toca o haz clic para iniciar</p>
             <span className="intro-video__hand" aria-hidden="true" style={{ color: "#d8aeb0" }}>
-              👆
+              {INTRO_HAND_EMOJI}
             </span>
           </div>
         )}
@@ -151,10 +166,21 @@ export default function IntroVideo() {
         onClick={toggleAudio}
         disabled={!audioReady}
         aria-pressed={isAudioPlaying}
-        aria-label={isAudioPlaying ? "Silenciar música" : "Reproducir música"}
+        aria-label={isAudioPlaying ? "Silenciar mÃºsica" : "Reproducir mÃºsica"}
       >
-        <span aria-hidden="true">{isAudioPlaying ? "🔊" : "🔇"}</span>
+        <span aria-hidden="true">{isAudioPlaying ? SOUND_ON_ICON : SOUND_OFF_ICON}</span>
+      </button>
+      <button
+        type="button"
+        className="sound-toggle sound-toggle--secondary"
+        onClick={restartIntro}
+        aria-label="Reproducir video de bienvenida otra vez"
+      >
+        ↺
       </button>
     </div>
   );
 }
+
+
+
