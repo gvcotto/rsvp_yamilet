@@ -24,7 +24,22 @@ const RECEPTION_CARD = {
   link: MAP_LINK,
 };
 
-const SLIDESHOW_PHOTOS = Array.from({ length: 15 }, (_, index) => `/photos/foto${index + 1}.jpg`);
+const SLIDESHOW_PHOTOS = [
+  "/photos/foto1.jpg",
+  "/photos/foto2.jpg",
+  "/photos/foto4.jpg",
+  "/photos/foto5.jpg",
+  "/photos/foto6.jpg",
+  "/photos/foto7.jpg",
+  "/photos/foto8.jpg",
+  "/photos/foto9.jpg",
+  "/photos/foto10.jpg",
+  "/photos/foto11.jpg",
+  "/photos/foto12.jpg",
+  "/photos/foto13.jpg",
+  "/photos/foto14.jpg",
+  "/photos/foto15.jpg",
+];
 const PAGE_COPY = {
   es: {
     sound: {
